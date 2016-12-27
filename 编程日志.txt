@@ -1,0 +1,89 @@
+
+-----------------------------------------20161206
+1、v0.11 put和del支持fiter处理多条数据（对象）
+
+-----------------------------------------20161110
+1、v0.10 支持第三方跳转(loginByThirdpart)，验证token，然后使用工号登录。
+
+-----------------------------------------20161016
+1、v0.9 增加count的filter查询
+	增加数据操作日志输出
+	增加/user/checkLogin响应，用于判断token是否有效
+	用户登录时增加对deviceid校验，以防止一机多用户
+
+-----------------------------------------20161002
+1、v0.8 修改GsonUtil里Map2Json中gson的初始化，增加对null值的返回：
+	Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").serializeNulls().create();
+2、     在McmAPI的Post里加response.setHeader("Access-Control-Allow-Origin", "*");以修复post跨域访问的问题
+
+-----------------------------------------20160920
+1、v0.7 处理跨域访问：
+	（1）、在UrlFilter的doFilter中增加对option处理。
+	（2）、在Post和Get里增加response.setHeader("Access-Control-Allow-Origin", "*");
+
+-----------------------------------------20160911
+1、v0.5 增加新建表、删除表、增加字段、删除字段和查看表结构操作。
+2、v0.6 使用json解析filter的field和where
+
+
+-----------------------------------------20160909
+1、v0.4 由于使用连接池只能达到8个连接，改为每次访问独立连接。并使用WEB-INF/conf/dbconfig.properties配置文件。测试没有卡顿现象。
+
+
+-----------------------------------------20160908
+1、小版本汇总
+ v0.1 完成数据库的增删改查
+ v0.2 完成中文处理
+ v0.3 完成用户验证、加入Token
+
+
+-----------------------------------------20160828
+
+1、mysql数据库表设计
+
+create DATABASE MobileOA DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+use MobileOA
+
+create table user ( id VARCHAR(30), username VARCHAR(20), password VARCHAR(30), email VARCHAR(30), realname VARCHAR(30), nextApproval_id VARCHAR(30),deviceid VARCHAR(30), mobile VARCHAR(20), createdAt DATETIME , updatedAt DATETIME );
+alter table user ADD CONSTRAINT PK_user PRIMARY KEY (username) ;
+
+
+----create table accessToken( id  VARCHAR(30), ttl INT(10) , userId  VARCHAR(30), createdAt DATETIME , updatedAt DATETIME );
+
+create table `sign`( id  VARCHAR(30), userId  VARCHAR(30), `in` INT(4) , `out` INT(4) ,sign_date VARCHAR(30), in_location VARCHAR(100), out_location VARCHAR(100), overtime  INT(4) , out_time DATETIME  ,inAddress  VARCHAR(100) , outAddress VARCHAR(100) ,signDateInt INT(20) , createdAt DATETIME , updatedAt DATETIME );
+
+create table approval ( id VARCHAR(30), userid VARCHAR(30), type INT(10) ,startDate  VARCHAR(30), endDate VARCHAR(30), reason VARCHAR(50), applicantName  VARCHAR(30), status INT(4) ,approvalId  VARCHAR(30), applicantId  VARCHAR(30),  createdAt DATETIME , updatedAt DATETIME );
+
+create table notice ( id VARCHAR(30), publisher VARCHAR(30), noticeContent VARCHAR(200), noticeTitle VARCHAR(30), noticeGroup VARCHAR(100), createdAt DATETIME , updatedAt DATETIME );
+
+create table trip ( id VARCHAR(30), source VARCHAR(30), destination VARCHAR(30), reason VARCHAR(100), userid VARCHAR(30), realName VARCHAR(30), tripDate VARCHAR(30),  createdAt DATETIME , updatedAt DATETIME );
+
+insert into user(id,username,password,realname,nextApproval_id,mobile,deviceid,createdAt,updatedAt) values ("x0801hmh0g9399cfdu67ozmi" , "fhadmin","admin123","系统管理员","","","",NOW(),NOW()) ;
+
+
+
+2、关于中文编码问题
+	（1）、tomcat的server.xml中Connector配置上加 URIEncoding="UTF-8" 
+	（2）、win7下tomcat默认编码为iso8895-1；中文会有乱码问题；在tomcat的启动命令的java设置的Options中加 -Dfile.encoding=UTF-8 
+	       linux下，需要在export LANG=en_US.UTF-8 后重启tomcat。
+	（3）、工程中所有文件的编码为 utf-8
+	（4）、在servlet中
+		request.setCharacterEncoding("utf-8");
+		response.setCharacterEncoding("utf-8");
+		
+3、mysql数据库设置
+	（1）、修改/etc/my.cnf
+			在[mysqld]下增加
+			default-character-set=utf8
+			init_connect='SET NAMES utf8'
+			skip-name-resolve
+			skip-grant-tables
+
+			在[client]下增加
+			default-character-set=utf8
+			
+			在数据库中show variables like 'char%' ;
+
+
+
